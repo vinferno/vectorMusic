@@ -1,0 +1,21 @@
+
+<div >
+  <button (click)="clearD()">reset</button> <button (click)="undo()">undo</button>
+  <p>
+    svg-canvas works!
+  </p>
+  <p>
+    {{ d }}
+  </p>
+
+  <div>
+    <button *ngFor="let type of types"  class="tooltip" [ngClass]="getTypeClass(type)" (click)="currentType = type">{{type.value}}<span class="tooltiptext">{{type.description}}</span></button>
+  </div>
+  <p>
+    {{currentType | json}}
+  </p>
+
+  <svg height="210" width="400" class="svg-canvas" (click)="addPoint($event)">
+    <path [attr.d]="getD()" style="stroke: #fff000; stroke-width: 1%; fill: none"></path>
+  </svg>
+</div>
