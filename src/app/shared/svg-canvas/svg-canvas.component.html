@@ -4,9 +4,19 @@
   <p>
     svg-canvas works!
   </p>
-  <p>
-    {{ d }}
-  </p>
+  <div>
+    <p class="d">
+      {{ d }}
+    </p>
+
+    <div>
+      <button (click)="cyclePathBlocksDown()">-</button>
+    <button (click)="cyclePathBlocksUp()">+</button>
+    </div>
+    {{ selectedBlock | json }}
+
+  </div>
+
 
   <div>
     <button *ngFor="let type of types"  class="tooltip" [ngClass]="getTypeClass(type)" (click)="currentType = type">{{type.value}}<span class="tooltiptext">{{type.description}}</span></button>

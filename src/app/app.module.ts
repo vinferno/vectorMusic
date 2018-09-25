@@ -13,7 +13,7 @@ import {StoreDevtoolsModule} from '@ngrx/store-devtools';
   declarations: [
     AppComponent,
     DrawerComponent,
-    SvgCanvasComponent
+    SvgCanvasComponent,
   ],
   imports: [
     BrowserModule,

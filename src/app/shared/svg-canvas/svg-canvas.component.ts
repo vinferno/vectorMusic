@@ -1,181 +1,17 @@
 import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {
+  PathTypeA,
+  PathTypeC,
+  PathTypeH,
+  PathTypeL,
+  PathTypeM,
+  PathTypeQ,
+  PathTypeS,
+  PathTypeT,
+  PathTypeV, PathTypeZ
+} from '../../classes/interface-class/paths';
 
 
-class PathType {
-  public value: string;
-  public description: string;
-  public output = '';
-
-  public updateOutput(value) {
-    this.output = value;
-  }
-}
-
-class PathTypeM extends PathType {
-  public x = 0;
-  public y = 0;
-
-  constructor() {
-    super();
-    this.value = 'M';
-    this.description = 'MoveTo';
-  }
-
-  public calcOutput() {
-    this.updateOutput(this.value + this.x + ',' + this.y + ' ');
-  }
-
-  public setX(x) {
-    this.x = x;
-  }
-  public setY(y) {
-    this.y = y;
-  }
-}
-
-class PathTypeL extends PathType {
-  public x = 0;
-  public y = 0;
-  constructor() {
-    super();
-    this.value = 'L';
-    this.description = 'LineTo';
-  }
-
-  public calcOutput() {
-    this.updateOutput(this.value + this.x + ',' + this.y + ' ');
-  }
-
-  public setX(x) {
-    this.x = x;
-  }
-  public setY(y) {
-    this.y = y;
-  }
-}
-
-class PathTypeH extends PathType {
-  public x = 0;
-  constructor() {
-    super();
-    this.value = 'H';
-    this.description = 'Horizontal Line';
-  }
-  public setX(x) {
-    this.x = x;
-  }
-
-  public calcOutput() {
-    this.updateOutput(this.value + this.x + ' ');
-  }
-}
-
-class PathTypeV extends PathType {
-  public y = 0;
-  constructor() {
-    super();
-    this.value = 'V';
-    this.description = 'Vertical Line';
-  }
-  public calcOutput() {
-    this.updateOutput(this.value + this.y + ' ');
-  }
-  public setY(y) {
-    this.y = y;
-  }
-}
-
-class PathTypeC extends PathType {
-  public x1;
-  public y1;
-  public x2;
-  public y2;
-  public x;
-  public y;
-
-  constructor() {
-    super();
-    this.value = 'C';
-    this.description = 'Cubic Bézier';
-  }
-
-  public setY(y) {
-    this.y = y;
-  }
-  public setX(x) {
-    this.x = x;
-  }
-
-  public setY1(y1) {
-    this.y1 = y1;
-  }
-  public setX1(x1) {
-    this.x1 = x1;
-  }
-
-  public setY2(y2) {
-    this.y2 = y2;
-  }
-  public setX2(x2) {
-    this.x2 = x2;
-  }
-}
-
-class PathTypeS extends PathType {
-  constructor() {
-    super();
-    this.value = 'S';
-    this.description = 'Smooth Cubic Bézier';
-  }
-}
-
-class PathTypeQ extends PathType {
-  constructor() {
-    super();
-    this.value = 'Q';
-    this.description = 'Quadratic Bézier';
-  }
-}
-
-class PathTypeT extends PathType {
-  public x = 0;
-  public y = 0;
-  constructor() {
-    super();
-    this.value = 'T';
-    this.description = 'T Quadratic Bézier';
-  }
-  public calcOutput() {
-    this.updateOutput(this.value + this.x + ',' + this.y + ' ');
-  }
-
-  public setX(x) {
-    this.x = x;
-  }
-  public setY(y) {
-    this.y = y;
-  }
-}
-
-class PathTypeA extends PathType {
-  constructor() {
-    super();
-    this.value = 'A';
-    this.description = 'Arc';
-  }
-}
-
-class PathTypeZ extends PathType {
-  constructor() {
-    super();
-    this.value = 'Z';
-    this.description = 'Close Path';
-  }
-
-  public calcOutput() {
-    this.updateOutput('Z');
-  }
-}
 
 @Component({
   selector: 'vf-svg-canvas',
@@ -184,6 +20,9 @@ class PathTypeZ extends PathType {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SvgCanvasComponent implements OnInit {
+
+  public selectedBlock = null;
+  public selectedBlockIndex = 0;
   public types = [
     new PathTypeM(),
     new PathTypeL(),
@@ -284,6 +123,9 @@ export class SvgCanvasComponent implements OnInit {
         ' ' + (event.offsetX) + ',' + (event.offsetY);
     }
 
+    this.selectedBlock = this.pathBlocks[this.pathBlocks.length - 1];
+    this.selectedBlockIndex = this.pathBlocks.length - 1;
+
   }
 
   public clearD() {
@@ -306,4 +148,26 @@ export class SvgCanvasComponent implements OnInit {
   public getTypeClass(type) {
     return {selected: type === this.currentType};
   }
+
+  public cyclePathBlocksUp() {
+    this.selectedBlockIndex++;
+    this.selectedBlock = this.pathBlocks[this.selectedBlockIndex];
+    if (!this.selectedBlock) {
+      this.selectedBlock = this.pathBlocks[0];
+      this.selectedBlockIndex = 0;
+    }
+  }
+
+  public cyclePathBlocksDown() {
+    this.selectedBlockIndex--;
+    this.selectedBlock = this.pathBlocks[this.selectedBlockIndex];
+    if (!this.selectedBlock) {
+      this.selectedBlock = this.pathBlocks[this.pathBlocks.length - 1];
+      this.selectedBlockIndex = this.pathBlocks.length - 1;
+    }
+  }
 }
+
+
+
+
