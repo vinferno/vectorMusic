@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {
+  PathType,
   PathTypeA,
   PathTypeC,
   PathTypeH,
@@ -12,6 +13,10 @@ import {
 } from '../../classes/interface-class/paths';
 
 
+const modeTypes = {
+  addPoint: 'Add Point',
+  changePropNumber: 'Change Prop Number'
+}
 
 @Component({
   selector: 'vf-svg-canvas',
@@ -21,8 +26,15 @@ import {
 })
 export class SvgCanvasComponent implements OnInit {
 
-  public selectedBlock = null;
+
+  public modes = [modeTypes.addPoint, modeTypes.changePropNumber];
+  public modeIndex = 0;
+
+  public selectedBlock: PathType = null;
   public selectedBlockIndex = 0;
+
+  public selectedProp;
+
   public types = [
     new PathTypeM(),
     new PathTypeL(),
@@ -47,15 +59,27 @@ export class SvgCanvasComponent implements OnInit {
     const m = new PathTypeM();
     m.setX(100);
     m.setY(100);
-    this.pathBlocks.push(m);
+    this.pushBlock(m);
     const l = new PathTypeL();
     l.setX(200);
     l.setY(200);
-    this.pathBlocks.push(l);
+    this.pushBlock(l);
+    this.selectedBlock = this.pathBlocks[this.pathBlocks.length - 1];
+    this.selectedBlockIndex = this.pathBlocks.length - 1;
   }
 
   public undo() {
     this.pathBlocks.pop();
+  }
+
+  public clickOnSvg(event) {
+    if (this.modes[this.modeIndex] === modeTypes.addPoint) {
+      this.addPoint(event);
+    }
+
+    if (this.modes[this.modeIndex] === modeTypes.changePropNumber) {
+      this.changePropNumber(event);
+    }
   }
 
 
@@ -68,14 +92,14 @@ export class SvgCanvasComponent implements OnInit {
       const m = new PathTypeM();
       m.setX(event.offsetX);
       m.setY(event.offsetY);
-      this.pathBlocks.push(m);
+      this.pushBlock(m);
     }
     if (value === 'L') {
       console.log('L');
       const l = new PathTypeL();
       l.setX(event.offsetX);
       l.setY(event.offsetY);
-      this.pathBlocks.push(l);
+      this.pushBlock(l);
     }
 
     if (value === 'T') {
@@ -83,11 +107,11 @@ export class SvgCanvasComponent implements OnInit {
       const t = new PathTypeT();
       t.setX(event.offsetX);
       t.setY(event.offsetY);
-      this.pathBlocks.push(t);
+      this.pushBlock(t);
     }
 
     if (this.currentType.value === 'Z') {
-      this.pathBlocks.push(new PathTypeZ());
+      this.pushBlock(new PathTypeZ());
     }
 
     // incomplete
@@ -105,22 +129,26 @@ export class SvgCanvasComponent implements OnInit {
       console.log('H');
       const h = new PathTypeH();
       h.setX(event.offsetX);
-      this.pathBlocks.push(h);
+      this.pushBlock(h);
     }
 
     if (value === 'V') {
       console.log('V');
       const v = new PathTypeV();
       v.setY(event.offsetY);
-      this.pathBlocks.push(v);
+      this.pushBlock(v);
     }
 
     if (value === 'C') {
       console.log('C');
-      this.d += this.currentType.value +
-        ' ' + (event.offsetX + 10) + ',' + (event.offsetY + 10) +
-        ' ' + (event.offsetX + 20) + ',' + (event.offsetY + 20) +
-        ' ' + (event.offsetX) + ',' + (event.offsetY);
+      const c = new PathTypeC();
+      c.setX(event.offsetX);
+      c.setY(event.offsetY);
+      c.setX1(event.offsetX);
+      c.setY1(event.offsetY);
+      c.setX2(event.offsetX);
+      c.setY2(event.offsetY);
+      this.pushBlock(c);
     }
 
     this.selectedBlock = this.pathBlocks[this.pathBlocks.length - 1];
@@ -136,12 +164,22 @@ export class SvgCanvasComponent implements OnInit {
     let answer = '';
 
     this.pathBlocks.forEach( (block, index) => {
-      console.log('index', index , block)
       block.calcOutput();
       answer += block.output;
     });
-    console.log('get', answer);
     this.d = answer;
+    return answer;
+  }
+
+  public getDebugPath() {
+    let answer = '';
+
+    if (this.selectedBlock) {
+      answer += 'M' + this.selectedBlock.startLocation.x + ',' + this.selectedBlock.startLocation.y;
+      this.selectedBlock.calcOutput();
+      answer += this.selectedBlock.output;
+    }
+    console.log('answer', answer);
     return answer;
   }
 
@@ -165,6 +203,62 @@ export class SvgCanvasComponent implements OnInit {
       this.selectedBlock = this.pathBlocks[this.pathBlocks.length - 1];
       this.selectedBlockIndex = this.pathBlocks.length - 1;
     }
+  }
+
+  public pushBlock(block) {
+    this.pathBlocks.push(block);
+    this.updateStartingLocation(block);
+  }
+
+  public updateStartingLocation(block) {
+    let myIndex = 0;
+    let myStartingX = null;
+    let myStartingY = null;
+    this.pathBlocks.forEach( (item, index) => {
+      if (item === block) {
+        myIndex = index;
+      }
+    });
+
+    for (let i = myIndex - 1; i > -1; i--) {
+      const test = this.pathBlocks[i];
+      if (this.pathBlocks[i] && !myStartingX && test.x) {
+        myStartingX = this.pathBlocks[i].x;
+      }
+      if (this.pathBlocks[i] && !myStartingY && test.y) {
+        myStartingY = test.y;
+      }
+    }
+
+    if (myStartingY && myStartingX) {
+      block.updateStartLocation(myStartingX, myStartingY);
+    } else {
+      block.updateStartLocation(block.x, block.y);
+    }
+  }
+
+  updateProp(event, prop) {
+    console.log('prop', prop, event.target.value );
+    this.selectedBlock[prop] = Number(event.target.value);
+    this.pathBlocks.forEach(block => {
+      this.updateStartingLocation(block);
+    })
+  }
+
+  public getInputType(prop) {
+    return typeof this.selectedBlock[prop] === 'number' ? 'number' : 'text';
+  }
+
+  public changePropNumber(event) {
+    console.log('this.selectedProp', this.selectedProp);
+    this.selectedBlock[this.selectedProp] = this.selectedProp.indexOf('Y') + 1 || this.selectedProp.indexOf('y') + 1 ? event.offsetY : event.offsetX;
+    this.pathBlocks.forEach( block => {
+      this.updateStartingLocation(block);
+    });
+  }
+
+  public selectProp(prop) {
+    this.selectedProp = prop;
   }
 }
 

@@ -3,9 +3,23 @@ export class PathType {
   public value: string;
   public description: string;
   public output = '';
+  public startLocation = {x: 0, y: 0};
+
+  public listProps() {
+    return Object.keys(this);
+  }
 
   public updateOutput(value) {
     this.output = value;
+  }
+
+  public updateStartLocation(x, y) {
+    this.startLocation.x = x;
+    this.startLocation.y = y;
+  }
+
+  public calcOutput() {
+    console.log(this, 'calcOutput not set up.');
   }
 }
 
@@ -116,6 +130,10 @@ export class PathTypeC extends PathType {
   }
   public setX2(x2) {
     this.x2 = x2;
+  }
+
+  public calcOutput() {
+    this.updateOutput(this.value + this.x1 + ' ' +  this.y1 + ' ' + this.x2 + ' ' + this.y2 + ' ' + this.x + ' ' + this.y);
   }
 }
 

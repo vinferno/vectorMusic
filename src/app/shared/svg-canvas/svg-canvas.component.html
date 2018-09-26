@@ -1,31 +1,56 @@
 
-<div >
-  <button (click)="clearD()">reset</button> <button (click)="undo()">undo</button>
-  <p>
-    svg-canvas works!
-  </p>
-  <div>
+<div class="relative">
+  <div class="absolute"></div>
+  <!--Mode-->
+  <section>
+    <div>
+      Mode: {{modes[modeIndex]}}
+    </div>
+    <button *ngFor="let mode of modes;let i = index;" (click)="modeIndex = i">{{mode}}</button>
+  </section>
+  <!--Reset-->
+  <section>
+    <button (click)="clearD()">reset</button> <button (click)="undo()">undo</button>
+  </section>
+
+  <!--Selected Block-->
+  <section>
     <p class="d">
       {{ d }}
     </p>
-
     <div>
       <button (click)="cyclePathBlocksDown()">-</button>
     <button (click)="cyclePathBlocksUp()">+</button>
     </div>
-    {{ selectedBlock | json }}
+    <div>
+      <div>
+        {{ selectedBlock | json }}:
+      </div>
 
-  </div>
+      <div>
+        {{selectedProp}}
+      </div>
+     <div *ngFor="let prop of selectedBlock.listProps()">
+       <button (click)="selectProp(prop)" class="prop-label">{{prop}}</button><input [type]="getInputType(prop)" [value]="selectedBlock[prop]" (change)="updateProp($event, prop)">
+     </div>
+    </div>
+  </section>
 
-
-  <div>
+  <!--Types-->
+  <section>
     <button *ngFor="let type of types"  class="tooltip" [ngClass]="getTypeClass(type)" (click)="currentType = type">{{type.value}}<span class="tooltiptext">{{type.description}}</span></button>
-  </div>
+
   <p>
     {{currentType | json}}
   </p>
+  </section>
 
-  <svg height="210" width="400" class="svg-canvas" (click)="addPoint($event)">
-    <path [attr.d]="getD()" style="stroke: #fff000; stroke-width: 1%; fill: none"></path>
-  </svg>
+  <!--SVG-->
+  <section>
+    <svg height="800px" width="800px" class="svg-canvas" (click)="clickOnSvg($event)">
+      <path [attr.d]="getD()" style="stroke: #fff000; stroke-width: 1%; fill: none"></path>
+      <path [attr.d]="getDebugPath()" style="stroke: #ee2299; stroke-width: 1%; fill: none"></path>
+    </svg>
+  </section>
+
 </div>
