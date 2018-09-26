@@ -31,7 +31,7 @@
         {{selectedProp}}
       </div>
      <div *ngFor="let prop of selectedBlock.listProps()">
-       <button (click)="selectProp(prop)" class="prop-label">{{prop}}</button><input [type]="getInputType(prop)" [value]="selectedBlock[prop]" (change)="updateProp($event, prop)">
+       <button [ngClass]="getPropClass(prop)" (click)="selectProp(prop)" class="prop-label">{{prop}}</button><input [type]="getInputType(prop)" [value]="selectedBlock[prop]" (change)="updateProp($event, prop)">
      </div>
     </div>
   </section>

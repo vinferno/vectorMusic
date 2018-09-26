@@ -61,8 +61,8 @@ export class SvgCanvasComponent implements OnInit {
     m.setY(100);
     this.pushBlock(m);
     const l = new PathTypeL();
-    l.setX(200);
-    l.setY(200);
+    l.setX(103);
+    l.setY(103);
     this.pushBlock(l);
     this.selectedBlock = this.pathBlocks[this.pathBlocks.length - 1];
     this.selectedBlockIndex = this.pathBlocks.length - 1;
@@ -187,6 +187,10 @@ export class SvgCanvasComponent implements OnInit {
     return {selected: type === this.currentType};
   }
 
+  public getPropClass(prop) {
+    return {selected: prop === this.selectedProp};
+  }
+
   public cyclePathBlocksUp() {
     this.selectedBlockIndex++;
     this.selectedBlock = this.pathBlocks[this.selectedBlockIndex];
@@ -242,7 +246,7 @@ export class SvgCanvasComponent implements OnInit {
     this.selectedBlock[prop] = Number(event.target.value);
     this.pathBlocks.forEach(block => {
       this.updateStartingLocation(block);
-    })
+    });
   }
 
   public getInputType(prop) {
@@ -251,7 +255,8 @@ export class SvgCanvasComponent implements OnInit {
 
   public changePropNumber(event) {
     console.log('this.selectedProp', this.selectedProp);
-    this.selectedBlock[this.selectedProp] = this.selectedProp.indexOf('Y') + 1 || this.selectedProp.indexOf('y') + 1 ? event.offsetY : event.offsetX;
+    this.selectedBlock[this.selectedProp] = this.selectedProp.
+    indexOf('Y') + 1 || this.selectedProp.indexOf('y') + 1 ? event.offsetY : event.offsetX;
     this.pathBlocks.forEach( block => {
       this.updateStartingLocation(block);
     });
